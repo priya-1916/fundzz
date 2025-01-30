@@ -9,10 +9,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: '*'})); // Parse JSON body data
+  origin: ['http://localhost:5174', 'https://fundzz-blush.vercel.app']
+}));
+ // Parse JSON body data
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/New')
+mongoose.connect('mongodb+srv://priya:priya@cluster0.epuug.mongodb.net/New')
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.log('MongoDB connection error:', err));
 

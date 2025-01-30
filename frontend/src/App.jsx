@@ -18,7 +18,7 @@ const App = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await fetch("http://localhost:8001/api/campaigns"); // Adjust URL to your backend
+        const response = await fetch("https://fundzz-backend.onrender.com/api/campaigns"); // Adjust URL to your backend
         const data = await response.json();
         setCampaigns(data); // Set fetched campaigns into state
       } catch (error) {
@@ -56,7 +56,7 @@ const App = () => {
 
     // Fetch the updated campaign data from the backend
     try {
-      const response = await fetch("http://localhost:8001/api/campaigns"); // Fetch latest campaigns
+      const response = await fetch("https://fundzz-backend.onrender.com/api/campaigns"); // Fetch latest campaigns
       const data = await response.json();
       setCampaigns(data); // Update state with the fresh campaign data
     } catch (error) {

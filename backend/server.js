@@ -5,17 +5,18 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-const PORT = 8000;
-const MONGO_URI = "mongodb://localhost:27017/New";
+const PORT = 8003;
+const MONGO_URI = "mongodb+srv://priya:priya@cluster0.epuug.mongodb.net/New";
 const JWT_SECRET = "fundz";
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: ["http://localhost:5174", "https://fundzz-blush.vercel.app"], // Array of allowed origins
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+  credentials: true // Allow cookies and authorization headers
 }));
+
 
 // Connect to MongoDB
 mongoose
