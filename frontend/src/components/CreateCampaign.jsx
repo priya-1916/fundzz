@@ -37,7 +37,7 @@ const CreateCampaign = ({ addCampaign }) => {
 
     try {
       // Send the new campaign data to the backend
-      const response = await fetch("https://fundzz-backend.onrender.com/api/campaigns", {
+      const response = await fetch("https://fundzz-backend.onrender.com/campaigns", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

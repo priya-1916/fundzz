@@ -13,16 +13,22 @@ import "./index.css";
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
+  const [error, setError] = useState(null); // State to track errors
 
   // Fetch campaigns from the backend when the component mounts
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await fetch("https://fundzz-backend.onrender.com/api/campaigns"); // Adjust URL to your backend
+        const response = await fetch("https://fundzz-backend.onrender.com/campaigns"); // Adjust URL to your backend
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
         setCampaigns(data); // Set fetched campaigns into state
       } catch (error) {
-        console.error("Error fetching campaigns:", error);
+        setError(error.message); // Capture error message
+        console.error("Error fetching campaigns:", error); // Log the error
       }
     };
 
@@ -56,7 +62,11 @@ const App = () => {
 
     // Fetch the updated campaign data from the backend
     try {
-      const response = await fetch("https://fundzz-backend.onrender.com/api/campaigns"); // Fetch latest campaigns
+      const response = await fetch("https://fundzz-backend.onrender.com/campaigns"); // Fetch latest campaigns
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
       const data = await response.json();
       setCampaigns(data); // Update state with the fresh campaign data
     } catch (error) {

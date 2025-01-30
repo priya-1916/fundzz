@@ -5,24 +5,22 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-const PORT = 8003;
-const MONGO_URI = "mongodb+srv://priya:priya@cluster0.epuug.mongodb.net/New";
-const JWT_SECRET = "fundz";
+const PORT = process.env.PORT || 8001;
+const JWT_SECRET = process.env.JWT_SECRET || 'funds';
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: ["http://localhost:5174", "https://fundzz-blush.vercel.app"], // Array of allowed origins
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-  credentials: true // Allow cookies and authorization headers
-}));
-
+app.use(cors({ origin: "fundzz-pk1z805so-priyas-projects-aa304abe.vercel.app", credentials: true }));
 
 // Connect to MongoDB
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Error connecting to MongoDB:", err));
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://priya:priya@cluster0.epuug.mongodb.net/New', {
+
+  serverSelectionTimeoutMS: 50000, // 50 seconds to allow longer connection time
+  socketTimeoutMS: 45000  // Timeout for sockets to close
+})
+.then(() => console.log("Connected to MongoDB"))
+.catch((err) => console.error("Error connecting to MongoDB:", err));
+
 
 // User Schema and Model
 const userSchema = new mongoose.Schema({
@@ -31,62 +29,64 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
 });
 
-const User = mongoose.model("fundzs", userSchema);
+const User = mongoose.model("User", userSchema);
 
-// Signup Route
 // Signup Route
 app.post("/signup", async (req, res) => {
   try {
-    console.log("Signup request received:", req.body); // Debug log
-
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already registered." });
+      return res.status(400).json({ success: false, message: "Email already registered" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
-    console.log("User created successfully:", newUser); // Debug log
-    res.status(201).json({ message: "Signup successful! You can now log in." });
-
+    res.status(201).json({ success: true, message: "Signup successful! You can now log in." });
   } catch (error) {
-    console.error("Error during signup:", error); // Log full error
-    res.status(500).json({ message: "Internal server error.", error: error.message });
+    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
   }
 });
 
-
 // Login Route
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ success: false, message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    res.json({ message: "Login successful", token });
+    res.json({ success: true, message: "Login successful", token, userId: user._id });
   } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Get All Users Route
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 }); // Exclude password from response
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Auth server is running on http://localhost:${PORT}`);
 });
