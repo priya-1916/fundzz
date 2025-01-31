@@ -1,91 +1,58 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const cors = require("cors");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const path = require('path');
+const favicon = require('serve-favicon');
 
 const app = express();
-const PORT = process.env.PORT || 8005;
-const JWT_SECRET = process.env.JWT_SECRET || 'funds';
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
 
-// Middleware
+// 🌍 Allowed Frontend URLs
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://fundzz-4lpt.vercel.app/"  // Change this to your deployed frontend URL
+];
+
+// 🛡️ Security Middleware
+app.use(helmet());
+
+// ✅ Corrected CORS Middleware
+app.use(
+  cors()
+);
+
 app.use(express.json());
-app.use(cors("*"));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://priya:priya2007@cluster0.epuug.mongodb.net/New', {
+// ✅ Serve Favicon (Fix for Missing Favicon Crash)
+const faviconPath = path.join(__dirname, 'public', 'favicon.ico');
+if (require('fs').existsSync(faviconPath)) {
+  app.use(favicon(faviconPath));
+} else {
+  console.warn("⚠️ Favicon not found at", faviconPath);
+}
 
-  // Timeout for sockets to close
-})
-.then(() => console.log("Connected to MongoDB"))
-.catch((err) => console.error("Error connecting to MongoDB:", err));
+// 🚀 Connect to MongoDB
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
+// 🔄 Routes
+const campaignRoutes = require('./routes/campaignRoutes');
+const authRoutes = require('./routes/authRoutes');
 
-// User Schema and Model
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+app.use("/", campaignRoutes);
+app.use("/", authRoutes);
+
+// 🌍 Health Check Route
+app.get("/", (req, res) => {
+  res.send("Server is running...");
 });
 
-const User = mongoose.model("User", userSchema);
-
-// Signup Route
-app.post("/signup", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: "Email already registered" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
-    await newUser.save();
-
-    res.status(201).json({ success: true, message: "Signup successful! You can now log in." });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
-  }
-});
-
-// Login Route
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ success: false, message: "User not found" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    res.json({ success: true, message: "Login successful", token, userId: user._id });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Get All Users Route
-app.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({}, { password: 0 }); // Exclude password from response
-    res.status(200).json({ success: true, users });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Start the server
+// 🎯 Start Server
 app.listen(PORT, () => {
-  console.log(`Auth server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

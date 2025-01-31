@@ -19,7 +19,7 @@ const App = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await fetch("http://localhost:8002/campaigns"); // Changed to localhost
+        const response = await fetch("https://backend-fundzz-19.onrender.com/campaigns"); // Changed to localhost
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -62,7 +62,7 @@ const App = () => {
 
     // Fetch the updated campaign data from the backend
     try {
-      const response = await fetch("http://localhost:8002/campaigns"); // Changed to localhost
+      const response = await fetch("https://backend-fundzz-19.onrender.com/campaigns"); // Changed to localhost
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
