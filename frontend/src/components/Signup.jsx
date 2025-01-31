@@ -9,7 +9,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://fundzz-backend.onrender.com/signup", {
+      const response = await fetch("http://localhost:8005/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -11,7 +11,7 @@ const Login = ({ setIsLoggedIn }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://fundzz-backend.onrender.com/login", {
+      const response = await fetch("http://localhost:8005/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

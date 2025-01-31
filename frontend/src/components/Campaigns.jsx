@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-
 const Campaigns = ({ campaigns = [], updateFunds }) => {
   const [supportAmounts, setSupportAmounts] = useState(
     campaigns.map(() => "")
@@ -27,7 +26,7 @@ const Campaigns = ({ campaigns = [], updateFunds }) => {
     console.log("Sending Campaign ID:", campaignId);
 
     try {
-      const response = await fetch(`https://fundzz-backend.onrender.com/api/campaigns/funds/${campaignId}`, {
+      const response = await fetch(`http://localhost:8002/campaigns/funds/${campaignId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ funds: amount }),

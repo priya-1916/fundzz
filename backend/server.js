@@ -5,18 +5,17 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 8005;
 const JWT_SECRET = process.env.JWT_SECRET || 'funds';
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: "fundzz-pk1z805so-priyas-projects-aa304abe.vercel.app", credentials: true }));
+app.use(cors("*"));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://priya:priya@cluster0.epuug.mongodb.net/New', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://priya:priya2007@cluster0.epuug.mongodb.net/New', {
 
-  serverSelectionTimeoutMS: 50000, // 50 seconds to allow longer connection time
-  socketTimeoutMS: 45000  // Timeout for sockets to close
+  // Timeout for sockets to close
 })
 .then(() => console.log("Connected to MongoDB"))
 .catch((err) => console.error("Error connecting to MongoDB:", err));
